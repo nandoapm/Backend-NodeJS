@@ -1,4 +1,4 @@
-const crypto = require('crypto');
+const generateUniqueId = require('../utils/generateUniqueId')
 const connection = require('../database/connection');
 
 module.exports = {
@@ -14,7 +14,7 @@ module.exports = {
     const { name, email, whatsapp, city, uf } = request.body;
     // uma ferramenta do node para gerar uma chave criptografada
     // toString converte o number em string no valor HEXadecimal
-    const id = crypto.randomBytes(4).toString('HEX');
+    const id = generateUniqueId();
     //operações do banco de dados
     // async e await => awaite vai aguardar finalizar para execultar o return
     await connection('ongs').insert({

@@ -1,4 +1,5 @@
 const express = require('express')
+const { celebrate, Segments, Joi, } = require('celebrate')
 
 const OngController = require('./controllers/OngController')
 const IncidentControler = require('./controllers/IncidentController')
@@ -11,13 +12,37 @@ const routes = express.Router();
 routes.post('/session', SessionController.create)
 
 routes.get('/ongs', OngController.index);
-routes.post('/ongs', OngController.create);
 
-routes.get('/profile', ProfileController.index);
+routes.post('/ongs', celebrate({
+  //sempre que o objeto for uma variavel do javascript será necesario colocar []
+  [Segments.BODY]: Joi.object().keys({
+    name: Joi.string().required(),
+    email: Joi.string().required().email(),
+    whatsapp: Joi.string().required().min(10).max(11),
+    city: Joi.string().required(),
+    uf: Joi.string().required().length(2)
+  }) 
+}), OngController.create);
 
-routes.get('/incidents', IncidentControler.index);
+routes.get('/profile', celebrate({
+  [Segments.HEADERS]: Joi.object({
+    authorization: Joi.string().required()
+  }).unknown(),
+}), ProfileController.index);
+
+routes.get('/incidents', celebrate({
+  [Segments.QUERY]: Joi.object().keys({
+    page: Joi.number(),
+  })
+}), IncidentControler.index);
+
 routes.post('/incidents', IncidentControler.create);
-routes.delete('/incidents/:id', IncidentControler.delete);
+
+routes.delete('/incidents/:id', celebrate({
+  [Segments.HEADERS]: Joi.object().keys({
+    id: Joi.number().required(),
+  })
+}), IncidentControler.delete);
 
 
 
